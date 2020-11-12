@@ -31,7 +31,78 @@ then execute [`tyme.py`](https://github.com/Cynnexis/tyme/blob/master/tyme.py).
 
 ### Usage
 
-Coming soon...
+To execute `tyme`, you just need to pass the time expression you want to compute:
+
+**Example:**
+
+```bash
+$ python tyme.py (12h24 - 8h22) + (16:45- 13h)
+7h47
+```
+
+#### Run with Docker 🐳
+
+It is possible to run `tyme` from the given `Dockerfile`.
+
+To execute `tyme` using docker, please refer to the example below:
+
+```bash
+cd path/to/tyme
+make build-docker
+docker run -it --rm cynnexis/tyme run "(12h24 - 8h22) + (16:45- 13h)"
+```
+
+> Please note the quotes around the time expression.
+
+If you want to build the Dockerfile without using a Makefile:
+
+```bash
+docker build -t cynnexis/tyme .
+```
+
+### Alias
+
+If your using bash, you can setup an alias to call `tyme`:
+
+First, let's create a conda environment if you have not done iet yet:
+
+```bash
+cd path/to/tyme
+conda create --name tyme python=3.7.6
+conda install --name tyme -c conda-forge --file requirements.txt
+```
+
+Then, activate the environment:
+
+```bash
+conda activate tyme
+```
+
+Download the last dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Get the path to your Python environment:
+
+```bash
+which python
+```
+
+For this tutorial, let's assume the path is `/home/user/anaconda3/envs/tyme/bin/python`. Create an alias with the
+following command:
+
+```bash
+echo alias tyme="/home/user/anaconda3/envs/tyme/bin/python /absolute/path/to/tyme/tyme.py" >> ~/.bash_aliases
+```
+
+And it's ready! To get all the commits messages of a local repository, go to your project folder, and execute the
+`tyme` command such as:
+
+```bash
+tyme 12h - 8h
+```
 
 ## Built With
 
@@ -58,13 +129,8 @@ Please see the [LICENSE.txt](https://github.com/Cynnexis/tyme/blob/master/LICENS
 file for more detail (it's a really fascinating story written in
 there!)
 
-## Acknowledgments
-
-* Git team ; what a flawless system they created!
-
 [python 3.7]: https://www.python.org/downloads/release/python-374/
 [typeguard]: https://pypi.org/project/typeguard/
-[gitpython]: https://gitpython.readthedocs.io/en/stable/index.html
 [githubactions]: https://github.com/features/actions
 [yapf]: https://github.com/google/yapf
 [shield-language]: https://img.shields.io/badge/language-python-yellow.svg
