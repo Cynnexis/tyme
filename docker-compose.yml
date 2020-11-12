@@ -1,0 +1,24 @@
+version: '3.7'
+services:
+  tyme:
+    container_name: tyme
+    image: cynnexis/tyme
+    volumes:
+      - './:/root/tyme'
+    command: run
+
+  test:
+    container_name: tyme_test
+    image: cynnexis/tyme
+    volumes:
+      - './:/root/tyme'
+    environment:
+      - DEBUG=True
+    command: test
+
+  lint:
+    container_name: tyme-lint
+    image: cynnexis/tyme
+    volumes:
+      - './:/root/tyme'
+    command: lint

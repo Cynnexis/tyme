@@ -1,0 +1,71 @@
+name: Tyme CI/CD
+
+on:
+  pull_request:
+    branches:
+      - master
+      - develop
+      - 'cicd/**'
+  push:
+    branches:
+      - master
+      - develop
+      - 'cicd/**'
+
+jobs:
+  lint:
+    runs-on: ubuntu-18.04
+    name: Check that the source code is correctly formatted.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Run YAPF
+        id: yapf
+        uses: docker://python:3.7.6-buster
+        with:
+          args: bash -c "python -m pip install --upgrade pip && pip install yapf==0.30.0 && $(which yapf) -r -vv --diff ./*.py test/ tyme_tools/"
+
+  test:
+    runs-on: ubuntu-18.04
+    name: Test the source code of the project.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Test tyme
+        uses: ./
+        id: tyme_test
+        with:
+          args: "test"
+
+  release:
+    runs-on: ubuntu-18.04
+    name: Release a new version
+    needs: [lint, test]
+    if: github.event_name == 'pull_request' && github.base_ref == 'master' || contains(github.ref, 'cicd/')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Zip projects
+        id: zip_tyme
+        run: zip tyme.zip * .*
+      - name: Create a release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.sha }}
+          release_name: ${{ github.sha }}
+          body: "Ref: ${{ github.ref }} SHA: ${{ github.sha }}"
+          draft: true
+          prerelease: false
+      - name: Upload release asset
+        id: upload_release_asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./tyme.zip
+          asset_name: tyme.zip
+          asset_content_type: application/zip
